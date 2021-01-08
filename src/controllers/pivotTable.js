@@ -32,8 +32,10 @@ import {
 import sheetmanage from './sheetmanage';
 import luckysheetsizeauto from './resize';
 import server from './server';
+import {checkProtectionAuthorityNormal} from './protection';
 import Store from '../store';
 import locale from '../locale/locale';
+import numeral from 'numeral';
 
 const pivotTable = {
     pivotDatas: null,
@@ -55,7 +57,7 @@ const pivotTable = {
         let realIndex = getSheetIndex(sheetIndex);
 
         if (getObjType(Store.luckysheetfile[realIndex].pivotTable) != "object"){
-            Store.luckysheetfile[realIndex].pivotTable = eval('('+ Store.luckysheetfile[realIndex].pivotTable +')');
+            Store.luckysheetfile[realIndex].pivotTable = new Function("return " + Store.luckysheetfile[realIndex].pivotTable )();
         }
 
         if (Store.luckysheetfile[realIndex].pivotTable != null) {
@@ -617,6 +619,7 @@ const pivotTable = {
         }
     },
     createPivotTable: function (e) {
+
         if(isEditMode() || Store.allowEdit===false){
             return;
         }
@@ -722,7 +725,7 @@ const pivotTable = {
         redo["pivotTablecur"] = pivotTable; 
 
         if(Store.clearjfundo){
-            Store.jfundo = [];
+            Store.jfundo.length  = 0;
             Store.jfredo.push(redo);
         }
         
@@ -733,7 +736,7 @@ const pivotTable = {
             jfrefreshgridall(data[0].length, data.length, data, null, Store.luckysheet_select_save, "datachangeAll", undefined, undefined,isRefreshCanvas);
         }
         else {
-            jfrefreshgrid(data, Store.luckysheet_select_save, undefined, undefined, undefined, undefined,isRefreshCanvas);
+            jfrefreshgrid(data, Store.luckysheet_select_save, {}, null, isRefreshCanvas);
             selectHightlightShow();
         }
 
@@ -745,6 +748,8 @@ const pivotTable = {
         if(index == null){
             index = Store.currentSheetIndex;
         }
+
+
 
         let file = Store.luckysheetfile[getSheetIndex(index)];
 
@@ -759,9 +764,14 @@ const pivotTable = {
             return;
         }
 
-        let slider = $("#luckysheet-modal-dialog-slider-pivot");
+        let slider = $("#luckysheet-modal-dialog-slider-pivot");        
+
         let isRangeClick = this.isPivotRange(row_index, col_index);
         if (isRangeClick && slider.is(":hidden")) {
+            if(!checkProtectionAuthorityNormal(index, "usePivotTablereports",false)){
+                // Store.luckysheet_select_status = false;
+                return;
+            }
             slider.show();
             luckysheetsizeauto();
             $("#luckysheet-sta-content").css("padding-right", 260);
@@ -851,7 +861,7 @@ const pivotTable = {
             pivotTable = $.extend(true, {}, Store.luckysheetfile[index]["pivotTable"]);
         }
         else{
-            pivotTable = eval('('+ pivotTable +')');
+            pivotTable = new Function("return " + pivotTable )();
         }
 
         return pivotTable
@@ -2719,7 +2729,7 @@ const pivotTable = {
                     let orderby = r == 0 ? "self" : ((row[r - 1].orderby == "self" || row[r - 1].orderby == null) ? item : (showType == "column" ? item + values[parseInt(row[r - 1].orderby)].fullname : item + locale_pivotTable.valueSum));
                     
                     if(name == null){
-                        name = locale_filter.valueBlank;;
+                        name = locale_filter.valueBlank;
                     }
 
                     curentLevelarr_row.push({ "name": name, "fullname": item, "index": r, "orderby": orderby, "children": [] });
@@ -2846,7 +2856,7 @@ const pivotTable = {
                 }
             }
             else if (json.sumtype == "PRODUCT") {
-                json.result = eval(json.digitaldata.join("*"));
+                json.result = new Function("return " + json.digitaldata.join("*"))();
             }
             else if (json.sumtype == "STDEV") {
                 let mean = json.sum / json.count;
@@ -3043,6 +3053,9 @@ const pivotTable = {
         return retdata;
     },
     drillDown: function(row_index, col_index){
+        if(!checkProtectionAuthorityNormal(Store.currentSheetIndex, "usePivotTablereports")){
+            return;
+        }
         let _this = this;
 
         let cell = _this.pivotDatas[row_index][col_index];

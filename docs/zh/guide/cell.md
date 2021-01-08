@@ -97,8 +97,15 @@
     <tr>
         <td>tr</td>
         <td>textrotate</td>
-        <td>文字旋转</td>
-        <td>0： 0、1： 45 、2：-45、3 竖排文字、4： 90 、5：-90</td>
+        <td>竖排文字</td>
+        <td>3</td>
+        <td>setRotationAngle</td>
+    </tr>
+    <tr>
+        <td>rt</td>
+        <td>rotatetext</td>
+        <td>文字旋转角度</td>
+        <td>介于0~180之间的整数，包含0和180</td>
         <td>setRotationAngle</td>
     </tr>
     <tr>
@@ -144,15 +151,6 @@
             value: "jhbk"//批注内容<br>
         }
         </code>
-        </td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>ae</td>
-        <td>allowEdit</td>
-        <td>是否允许编辑</td>
-        <td>
-        0: 只读，不可编辑 1：可以编辑，默认为 1
         </td>
         <td></td>
     </tr>
@@ -332,7 +330,7 @@ Luckysheet在存储数字类型的内容时，支持多种格式转换，所以�
 ]
 ```
 
-> borderInfo 详细参考：[表格数据config](/zh/guide/data.html#config)
+> borderInfo 详细参考：[config.borderInfo](/zh/guide/sheet.html#config-borderinfo)
 
 ## 简化的单元格数据
 
