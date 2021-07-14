@@ -307,7 +307,7 @@ options.data示例如下：
     1. 选区 `rangeType: "range"`
 
         + 边框类型 `borderType："border-left" | "border-right" | "border-top" | "border-bottom" | "border-all" | "border-outside" | "border-inside" | "border-horizontal" | "border-vertical" | "border-none"`，
-        + 边框粗细 `style:  1 Thin | 2 Hair | 3 Dotted | 4 Dashed | 5 DashDot | 6 DashDotDot | 7 Double | 8 Medium | 9 MediumDashed | 10 MediumDashDot | 11 MediumDashDotDot | 12 SlantedDashDot | 13 Thick`
+        + 边框粗细 `style:  1 Thin | 2 Hair | 3 Dotted | 4 Dashed | 5 DashDot | 6 DashDotDot | 7 Double | 8 Medium | 9 MediumDashed | 10 MediumDashDot | 11 MediumDashDotDot | 12 SlantedDashDot | 13 Thick`，和aspose.cells的getLineStyle()的值对应的话，需要自己做个转换，参考 [aspose.cells](https://apireference.aspose.com/cells/net/aspose.cells/cellbordertype)
         + 边框颜色 `color: 16进制颜色值`
         + 选区范围 `range: 行列信息数组`
 
@@ -1344,8 +1344,10 @@ options.data示例如下：
     + `"date"`(日期)
     + `"validity"`(有效性)；
   + {String | Null} [type2]: 条件类型；
-    + 类型`type`值为`"dropdown"/"checkbox"`时，`type2`值可为        
+    + 类型`type`值为`"checkbox"`时，`type2`值可为        
         + `null`；
+    + 类型`type`值为`"dropdown"`时，`type2`值可为
+        + `true` （多选） `false` （单选）
     + 类型`type`值为`"number"/"number_integer"/"number_decimal"/"text_length"`时，`type2`值可为
       + `"bw"`(介于)
       + `"nb"`(不介于)

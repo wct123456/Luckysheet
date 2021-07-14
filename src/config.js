@@ -3,6 +3,7 @@
  */
 export default {
     container: "luckysheet", //容器的ID
+    loading:{}, //自定义loading
     column: 60, //空表格默认的列数量
     row: 84, //空表格默认的行数据量
     allowCopy: true, //是否允许拷贝
@@ -65,4 +66,5 @@ export default {
     showstatisticBarConfig:{}, //自定义计数栏
     cellRightClickConfig:{}, //自定义单元格右键菜单
     sheetRightClickConfig:{}, //自定义底部sheet页右击菜单
+    imageUpdateMethodConfig:{}, //自定义图片同步方式
 }

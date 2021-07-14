@@ -32,6 +32,13 @@ const babel = require('@rollup/plugin-babel').default;
 // Distinguish development and production environments
 const production = process.env.NODE_ENV === 'production' ? true : false;
 
+const pkg = require('./package.json');
+const banner = `/*! @preserve
+ * ${pkg.name}
+ * version: ${pkg.version}
+ * https://github.com/mengshukeji/Luckysheet
+ */`;
+
 // uglify js Compression configuration https://github.com/mishoo/UglifyJS#minify-options
 const uglifyOptions = {
     compress: {
@@ -87,6 +94,7 @@ const paths = {
     css:['src/css/*.css','node_modules/flatpickr/dist/themes/light.css'],
     pluginsJs:[
         'node_modules/jquery/dist/jquery.min.js',
+        'node_modules/uuid/dist/umd/uuid.min.js',
         'src/plugins/js/clipboard.min.js',
         'src/plugins/js/spectrum.min.js',
         'src/plugins/js/jquery-ui.min.js',
@@ -191,7 +199,7 @@ async function core() {
         name: 'luckysheet',
         sourcemap: true,
         inlineDynamicImports:true,
-
+        banner: banner
     });
 
     if(production){
@@ -201,6 +209,7 @@ async function core() {
             name: 'luckysheet',
             sourcemap: true,
             inlineDynamicImports:true,
+            banner: banner
         });
     }
 

@@ -40,3 +40,12 @@ Funds donated via Patreon go directly to support mengshukeji's work on Luckyshee
 - 张铭 ¥ 200
 - 曹治军 ¥ 1
 - *特 ¥ 10
+- **权 ¥ 9.9
+- **sdmq ¥ 20
+- *旭 ¥ 10
+- Quentin ¥ 20
+- 周宇凡 ¥ 100
+- *超 ¥ 10
+- 维宁 ¥ 100
+- hyy ¥ 20
+- 雨亭寒江月 ¥ 50

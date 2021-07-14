@@ -37,6 +37,7 @@ import { replaceHtml, getObjType, rgbTohex, mouseclickposition, luckysheetfontfo
 import {openProtectionModal,checkProtectionFormatCells,checkProtectionNotEnable} from './protection';
 import Store from '../store';
 import locale from '../locale/locale';
+import {checkTheStatusOfTheSelectedCells} from '../global/api';
 
 const menuButton = {
     "menu": '<div class="luckysheet-cols-menu luckysheet-rightgclick-menu luckysheet-menuButton ${subclass} luckysheet-mousedown-cancel" id="luckysheet-icon-${id}-menuButton">${item}</div>',
@@ -117,8 +118,8 @@ const menuButton = {
         let _this = this;
 
         //格式刷
-        $("#luckysheet-icon-paintformat").click(function(){
-
+        $("#luckysheet-icon-paintformat").click(function(e){
+            e.stopPropagation();
             let _locale = locale();
             let locale_paint = _locale.paint;
 
@@ -2170,19 +2171,11 @@ const menuButton = {
             e.stopPropagation();
         }).click(function(e){
             let d = editor.deepCopyFlowData(Store.flowdata);
-            let row_index = Store.luckysheet_select_save[0]["row_focus"], 
-                col_index = Store.luckysheet_select_save[0]["column_focus"];
-            let foucsStatus = _this.checkstatus(d, row_index, col_index, "bl");
-
-            if(foucsStatus == 1){
-                foucsStatus = 0;
-            }
-            else{
-                foucsStatus = 1;
-            }
+            
+            let flag = checkTheStatusOfTheSelectedCells("bl",1);
+            let foucsStatus = flag ? 0 : 1;
 
             _this.updateFormat(d, "bl", foucsStatus);
-            _this.menuButtonFocus(d, row_index, col_index);
         });
 
         //斜体
@@ -2191,19 +2184,11 @@ const menuButton = {
             e.stopPropagation();
         }).click(function(){
             let d = editor.deepCopyFlowData(Store.flowdata);
-            let row_index = Store.luckysheet_select_save[0]["row_focus"], 
-                col_index = Store.luckysheet_select_save[0]["column_focus"];
-            let foucsStatus = _this.checkstatus(d, row_index, col_index, "it");
 
-            if(foucsStatus == 1){
-                foucsStatus = 0;
-            }
-            else{
-                foucsStatus = 1;
-            }
+            let flag = checkTheStatusOfTheSelectedCells("it",1);
+            let foucsStatus = flag ? 0 : 1;
 
             _this.updateFormat(d, "it", foucsStatus);
-            _this.menuButtonFocus(d, row_index, col_index);
         });
 
         //删除线
@@ -2212,19 +2197,10 @@ const menuButton = {
             e.stopPropagation();
         }).click(function(){
             let d = editor.deepCopyFlowData(Store.flowdata);
-            let row_index = Store.luckysheet_select_save[0]["row_focus"], 
-                col_index = Store.luckysheet_select_save[0]["column_focus"];
-            let foucsStatus = _this.checkstatus(d, row_index, col_index, "cl");
-
-            if(foucsStatus == 1){
-                foucsStatus = 0;
-            }
-            else{
-                foucsStatus = 1;
-            }
+            let flag = checkTheStatusOfTheSelectedCells("cl",1);
+            let foucsStatus = flag ? 0 : 1;
 
             _this.updateFormat(d, "cl", foucsStatus);
-            _this.menuButtonFocus(d, row_index, col_index);
         });
 
         //下划线
@@ -2233,19 +2209,10 @@ const menuButton = {
             e.stopPropagation();
         }).click(function(){
             let d = editor.deepCopyFlowData(Store.flowdata);
-            let row_index = Store.luckysheet_select_save[0]["row_focus"], 
-                col_index = Store.luckysheet_select_save[0]["column_focus"];
-            let foucsStatus = _this.checkstatus(d, row_index, col_index, "un");
-
-            if(foucsStatus == 1){
-                foucsStatus = 0;
-            }
-            else{
-                foucsStatus = 1;
-            }
+            let flag = checkTheStatusOfTheSelectedCells("un",1);
+            let foucsStatus = flag ? 0 : 1;
 
             _this.updateFormat(d, "un", foucsStatus);
-            _this.menuButtonFocus(d, row_index, col_index);
         });
 
         //条件格式
@@ -2435,7 +2402,7 @@ const menuButton = {
                                 let dataset = new Function("return " + d)();
 
                                 setTimeout(function(){
-                                    $("#luckysheetloadingdata").fadeOut().remove();
+                                    Store.loadingObj.close()
                                 }, 500);
 
                                 for(let item in dataset){
@@ -3013,7 +2980,8 @@ const menuButton = {
                         type = "s"
                     }
                     else if(foucsStatus == "General" || foucsStatus === 0){
-                        type = "g";
+                        // type = "g"; 
+                        type = isRealNum(value) ? "n" : "g";
                     }
 
                     if (getObjType(cell) == "object") {
@@ -4224,23 +4192,25 @@ const menuButton = {
             let cell = null;
 
             if(type == "c"){
-                cell = d[ed_m][fix];
+                cell = d[ed_m + 1][fix];
             }
             else{
-                cell = d[fix][ed_m];
+                cell = d[fix][ed_m + 1];
             }
 
+            /* 备注：在搜寻的时候排除自己以解决单元格函数引用自己的问题 */
             if(cell != null && cell.v != null && cell.v.toString().length > 0){
-                let c = ed_m;
+                let c = ed_m + 1;
 
                 if(type == "c"){
-                    cell = d[ed_m][fix];
+                    cell = d[ed_m + 1][fix];
                 }
                 else{
-                    cell = d[fix][ed_m];
+                    cell = d[fix][ed_m + 1];
                 }
 
                 while ( cell != null && cell.v != null && cell.v.toString().length > 0) {
+                    
                     c++;
                     let len = null;
                     
@@ -4272,10 +4242,10 @@ const menuButton = {
             }
             else{
                 if(type == "c"){
-                    _this.backFormulaInput(d, ed_m, fix, [st_m, ed_m], [fix ,fix], formula);
+                    _this.backFormulaInput(d, ed_m + 1, fix, [st_m, ed_m], [fix ,fix], formula);
                 }
                 else{
-                    _this.backFormulaInput(d, fix, ed_m, [fix ,fix], [st_m, ed_m], formula);
+                    _this.backFormulaInput(d, fix, ed_m + 1, [fix ,fix], [st_m, ed_m], formula);
                 }
             }
         }

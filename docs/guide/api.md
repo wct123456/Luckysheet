@@ -1930,9 +1930,9 @@ Use note:
 		+ `"flipLeftRight"`: flip left and right
 		+ `"flipClockwise"`: rotate clockwise
 		+ `"flipCounterClockwise"`: rotate counterclockwise
-		+ `"Transpose"`: Transpose
-		+ `"DeleteZeroByRow"`: delete 0 values at both ends by row
-		+ `"DeleteZeroByColumn"`: delete zero values at both ends by column
+		+ `"transpose"`: Transpose
+		+ `"deleteZeroByRow"`: delete 0 values at both ends by row
+		+ `"deleteZeroByColumn"`: delete zero values at both ends by column
 		+ `"removeDuplicateByRow"`: delete duplicate values by row
 		+ `"removeDuplicateByColumn"`: remove duplicate values by column
 		+ `"newMatrix"`: Produce a new matrix
@@ -2076,9 +2076,6 @@ Use note:
 
 ### getConfig([setting])
 
-[todo]
-
-
 - **Parameter**：
 
 	- {PlainObject} [setting]: optional parameters
@@ -2092,9 +2089,6 @@ Use note:
 
 ### setConfig([setting])
 
-[todo]
-
-
 - **Parameter**：
 
 	- {PlainObject} [setting]: optional parameters
@@ -2104,6 +2098,19 @@ Use note:
 - **Explanation**：
 
 	Quickly set the current worksheet config configuration
+
+------------
+### updataSheet([setting])
+
+- **参数**：
+
+    - {PlainObject} [setting]: optional parameters
+    	+ {Array} [data]: Worksheet Configuration
+    	+ {Function} [success]: callback function for the end of the operation
+	
+- **说明**：
+
+	Update the corresponding sheet according to the set sheet configuration
 
 ------------
 
@@ -2512,8 +2519,6 @@ Use note:
 
 ### setWorkbookName(name [,setting])
 
-[todo]
-
 - **Parameter**：
 
 	- {Number} [name]: Workbook name
@@ -2523,6 +2528,19 @@ Use note:
 - **Explanation**：
 	
 	Set workbook name
+
+------------
+
+### getWorkbookName(name [,setting])
+
+- **Parameter**：
+
+	- {PlainObject} [setting]: optional parameters
+		+ {Function} [success]: callback function for the end of the operation
+
+- **Explanation**：
+	
+	get workbook name
 
 ------------
 
@@ -2567,6 +2585,34 @@ Use note:
 - **Explanation**：
 	
 	Force refresh formula. When you directly modify the values of multiple cells without triggering a refresh, and these cells are associated with formulas, you can use this API to force a formula refresh to be triggered at the end.
+
+------------
+
+### refreshMenuButtonFocus([data],[r],[c],[success])
+
+- **Parameter**：
+
+	- {Array}  [data]: Operational data
+	- {Number} [r]: Specified row
+	- {Number} [c]: Specified column
+	- {Function} [success]: callback function for the end of the operation
+
+- **Explanation**：
+	
+	Refreshes the top status bar status of the specified cell.
+
+------------
+
+### checkTheStatusOfTheSelectedCells(type,status)
+
+- **Parameter**：
+
+	- {String} type: type
+	- {String} status: Target state value
+
+- **Explanation**：
+	
+	Check whether the status of all specified types of cells in the selection meets the conditions (mainly bold, italics, strikeouts, underscores, etc.).
 
 ------------
 

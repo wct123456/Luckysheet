@@ -29,7 +29,7 @@ export function luckysheetupdateCell(row_index1, col_index1, d, cover, isnotfocu
     }
 
     // 钩子函数
-    method.createHookFunction('cellEditBefore',Store.luckysheet_select_save)
+    if(!method.createHookFunction('cellEditBefore',Store.luckysheet_select_save)){return;}
 
     // 编辑单元格时发送指令到后台，通知其他单元格更新为“正在输入”状态
     server.saveParam("mv", Store.currentSheetIndex,  {op:"enterEdit",range:Store.luckysheet_select_save});
@@ -176,7 +176,7 @@ export function luckysheetupdateCell(row_index1, col_index1, d, cover, isnotfocu
             else{
                 value = valueShowEs(row_index, col_index, d);
                 if(cell.qp=="1"){
-                    value = "'" + value;
+                    value = value ? ("" + value) : value;
                 }
             }
         }
@@ -217,7 +217,7 @@ export function luckysheetupdateCell(row_index1, col_index1, d, cover, isnotfocu
     if((value == null || value.toString() == "") && !cover){
         value = "<br/>";
     }
-    
+    value = formula.xssDeal(value);
     if(!checkProtectionCellHidden(row_index, col_index, Store.currentSheetIndex) && value.length>0 && value.substr(0, 63)=='<span dir="auto" class="luckysheet-formula-text-color">=</span>'){
         $("#luckysheet-rich-text-editor").html("");
     }

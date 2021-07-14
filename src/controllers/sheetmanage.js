@@ -823,7 +823,7 @@ const sheetmanage = {
 
                     if (!!file.isPivotTable) {
                         Store.luckysheetcurrentisPivotTable = true;
-                        pivotTable.changePivotTable(Store.currentSheetIndex);
+                        // pivotTable.changePivotTable(Store.currentSheetIndex); //此方法需要注释掉，在restoreSheetAll中已经执行了刷新了数据透视表，这里就不需要了
                     }
                     else {
                         Store.luckysheetcurrentisPivotTable = false;
@@ -864,12 +864,12 @@ const sheetmanage = {
 
                     if(luckysheetConfigsetting.pointEdit){
                         setTimeout(function(){
-                            $("#luckysheetloadingdata").remove();
+                            Store.loadingObj.close()
                         }, 0);
                     }
                     else{
                         setTimeout(function(){
-                            $("#luckysheetloadingdata").fadeOut().remove();
+                            Store.loadingObj.close()
                         }, 500);
                     }
                 }
@@ -1243,7 +1243,7 @@ const sheetmanage = {
                     let data = _this.buildGridData(file);
 
                     setTimeout(function(){
-                        $("#luckysheetloadingdata").fadeOut().remove();
+                        Store.loadingObj.close()
                     }, 500);
 
                     for(let item in dataset){

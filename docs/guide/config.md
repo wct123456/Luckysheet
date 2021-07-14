@@ -636,7 +636,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered before the cell is rendered, `return false` will not render the cell
 - Parameter: 
 	- {Object} [cell]:Cell object
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]: The row number of the cell
 		+ {Number} [c]: The column number of the cell
 		+ {Number} [start_r]: The horizontal coordinate of the upper left corner of the cell
@@ -654,7 +654,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered after the cell rendering ends, `return false` will not render the cell
 - Parameter: 
 	- {Object} [cell]: Cell object
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]: The row number of the cell
 		+ {Number} [c]: The column number of the cell
 		+ {Number} [start_r]: The horizontal coordinate of the upper left corner of the cell
@@ -663,6 +663,74 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 		+ {Number} [end_c]: The vertical coordinate of the lower right corner of the cell
 	- {Object} [sheet]: Current worksheet object
 	- {Object} [ctx]: The context of the current canvas
+
+- Example:
+
+	A case of drawing two pictures in the upper left corner and lower right corner of cell D1
+	:::::: details
+	```js
+	luckysheet.create({
+            hook: {
+                cellRenderAfter: function (cell, position, sheetFile, ctx) {
+                    var r = position.r;
+                    var c = position.c;
+                    if (r === 0 && c === 3) { // Specify to process cell D1
+                        if (!window.storeUserImage) {
+                            window.storeUserImage = {}
+                        }
+						
+                        if (!window.storeUserImage[r + '_' + c]) {
+                            window.storeUserImage[r + '_' + c] = {}
+                        }
+
+                        var img = null;
+                        var imgRight = null;
+
+                        if (window.storeUserImage[r + '_' + c].image && window.storeUserImage[r + '_' + c].imgRight) {
+							
+							// Fetch directly after loading
+                            img = window.storeUserImage[r + '_' + c].image;
+                            imgRight = window.storeUserImage[r + '_' + c].imgRight;
+
+                        } else {
+
+                            img = new Image();
+                            imgRight = new Image();
+
+                            img.src = 'https://www.dogedoge.com/favicon/developer.mozilla.org.ico';
+                            imgRight.src = 'https://www.dogedoge.com/static/icons/twemoji/svg/1f637.svg';
+
+							// The picture is cached in the memory, fetched directly next time, no need to reload
+                            window.storeUserImage[r + '_' + c].image = img;
+                            window.storeUserImage[r + '_' + c].imgRight = imgRight;
+
+                        }
+
+						
+                        if (img.complete) { //Direct rendering that has been loaded
+                            ctx.drawImage(img, position.start_c, position.start_r, 10, 10);
+                        } else {
+                            img.onload = function () {
+                                ctx.drawImage(img, position.start_c, position.start_r, 10, 10);
+                            }
+
+                        }
+
+                        if (imgRight.complete) {
+                            ctx.drawImage(imgRight, position.end_c - 10, position.end_r - 10, 10, 10);
+                        } else {
+
+                            imgRight.onload = function () {
+                                ctx.drawImage(imgRight, position.end_c - 10, position.end_r - 10, 10, 10);
+                            }
+                        }
+
+                    }
+                }
+            }
+        })
+	```
+	:::
 
 ------------
 ### cellAllRenderBefore
@@ -683,7 +751,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered before the row header cell is rendered, `return false` will not render the row header
 - Parameter: 
 	- {String} [rowNum]: Row number
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]: The row number of the cell
 		+ {Number} [top]: The vertical coordinate of the upper left corner of the cell
 		+ {Number} [width]: Cell width
@@ -698,7 +766,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered after the row header cell is rendered, `return false` will not render the row header
 - Parameter: 
 	- {String} [rowNum]: Row number
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]: The row number of the cell
 		+ {Number} [top]: The vertical coordinate of the upper left corner of the cell
 		+ {Number} [width]: Cell width
@@ -713,7 +781,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered before the column header cell is rendered, `return false` will not render the column header
 - Parameter: 
 	- {Object} [columnAbc]: Column header characters
-	- {Object} [postion]:
+	- {Object} [position]:
 		- {Number} [c]: The column number of the cell
 		- {Number} [left]: The horizontal coordinate of the upper left corner of the cell
 		- {Number} [width]: Cell width
@@ -728,7 +796,7 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 - Usage: Triggered after the column header cell is rendered, `return false` will not render the column header
 - Parameter: 
 	- {Object} [columnAbc]: Column header characters
-	- {Object} [postion]:
+	- {Object} [position]:
 		- {Number} [c]: The column number of the cell
 		- {Number} [left]: The horizontal coordinate of the upper left corner of the cell
 		- {Number} [width]: Cell width
@@ -1100,6 +1168,16 @@ The hook functions are uniformly configured under ʻoptions.hook`, and configura
 	- {Object} [size]: The width and height of the entire workbook area
     
 ------------
+
+## Cooperative
+
+### cooperativeMessage
+
+- Type：Function
+- Default：null
+- Usage：Receive the cooperation message, secondary development. Expanding cooperative message instruction set
+- Params:
+	- {Object} : Receives the entire collaboration message body object sent by the server
 
 ## Image
 

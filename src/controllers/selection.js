@@ -15,6 +15,7 @@ import { getSheetIndex } from '../methods/get';
 import { replaceHtml, getObjType, luckysheetfontformat } from '../utils/util';
 import Store from '../store';
 import locale from '../locale/locale';
+import imageCtrl from './imageCtrl';
 
 const selection = {
     clearcopy: function (e) {
@@ -438,6 +439,17 @@ const selection = {
                     if(c_value == null){
                         c_value = getcellvalue(r, c, d);
                     }
+                    if(c_value == null && d[r][c] && d[r][c].ct && d[r][c].ct.t == 'inlineStr') {
+                      c_value = d[r][c].ct.s.map(val=>{
+                        const font = $('<font></font>')
+                        val.fs && font.css('font-size',val.fs)
+                        val.bl && font.css('font-weight',val.border)
+                        val.it && font.css('font-style',val.italic)
+                        val.cl==1 && font.css('text-decoration','underline')
+                        font.text(val.v)
+                        return font[0].outerHTML
+                      }).join('');
+                    }
 
                     if(c_value == null){
                         c_value = "";
@@ -514,26 +526,26 @@ const selection = {
         Store.iscopyself = true;
 
         if (!clipboardData) {
-            // let textarea = $("#luckysheet-copy-content");
-            // textarea.html(cpdata);
-            // textarea.focus();
-            // textarea.select();
-            // document.execCommand("selectAll");
-            // document.execCommand("Copy");
+            let textarea = $("#luckysheet-copy-content");
+            textarea.html(cpdata);
+            textarea.focus();
+            textarea.select();
+            document.execCommand("selectAll");
+            document.execCommand("Copy");
 
             // 等50毫秒，keyPress事件发生了再去处理数据
-            // setTimeout(function () {
-            //     $("#luckysheet-copy-content").blur();
-            // }, 10);
+            setTimeout(function () {
+                $("#luckysheet-copy-content").blur();
+            }, 10);
 
-            var oInput = document.createElement('input');
-            oInput.setAttribute('readonly', 'readonly');
-            oInput.value = cpdata;
-            document.body.appendChild(oInput);
-            oInput.select(); // 选择对象
-            document.execCommand("Copy");
-            oInput.style.display='none';
-            document.body.removeChild(oInput);
+            // var oInput = document.createElement('input');
+            // oInput.setAttribute('readonly', 'readonly');
+            // oInput.value = cpdata;
+            // document.body.appendChild(oInput);
+            // oInput.select(); // 选择对象
+            // document.execCommand("Copy");
+            // oInput.style.display='none';
+            // document.body.removeChild(oInput);
         }
         else {
             clipboardData.setData('Text', cpdata);
@@ -595,6 +607,9 @@ const selection = {
                 else{
                     _this.pasteHandlerOfCopyPaste(Store.luckysheet_copy_save);
                 }
+            }
+            else if(data.indexOf("luckysheet_copy_action_image") > - 1){
+                imageCtrl.pasteImgItem();
             }
             else if (triggerType != "btn") {
                 _this.pasteHandler(data);
@@ -1765,13 +1780,23 @@ const selection = {
                             }
 
                             if(getObjType(x[c]) == "object"){
-
+                                if(x[c].ct && x[c].ct.t === "inlineStr"){
+                                    delete value["ct"];
+                                }else{
+                                    let format = ['bg','fc','ct','ht','vt','bl','it','cl','un','fs','ff','tb']
+                                    format.forEach(item=>{
+                                        Reflect.deleteProperty(x[c],item);
+                                    })
+                                }
                             }
                             else{
                                 x[c] = {"v": x[c] };
                             }
 
                             x[c] = $.extend(true, x[c], value);
+                            if(x[c].ct && x[c].ct.t === "inlineStr"){  
+                                x[c].ct.s.forEach(item=> item = $.extend(true, item, value))
+                            }
 
                             if(copyHasMC && ("mc" in x[c])){
                                 if(x[c]["mc"].rs != null){
@@ -1854,8 +1879,14 @@ const selection = {
             jfrefreshgrid(d, Store.luckysheet_select_save, allParam);
         }
         else{
+            // 选区格式刷存在超出边界的情况
+             if(maxh >= d.length){
+                maxh = d.length - 1;
+            }
+            cfg = rowlenByRange(d, minh, maxh, cfg); //更新行高
             let allParam = {
                 "cfg": cfg,
+                "RowlChange": true,
                 "cdformat": cdformat,
                 "dataVerification": dataVerification
             }

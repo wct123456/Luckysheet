@@ -9144,6 +9144,9 @@ export default {
         update:"Update",
         delete:"Delete",
         insert:"新建",
+        prevPage: "上一页",
+        nextPage: "下一页",
+        total: "总共："
     },
     paint: {
         start: '格式刷开启',
@@ -9167,7 +9170,7 @@ export default {
         detailSave: '已恢复本地缓存',
         row: '行',
         column: '列',
-        loading:"渲染中",
+        loading:"渲染中···",
 
         copy:"副本",
         return:"返回",
@@ -9770,7 +9773,7 @@ export default {
         noHide:"不能隐藏, 至少保留一个sheet标签",
         chartEditNoOpt:"图表编辑模式下不允许该操作！",
         sheetNameSpecCharError:"名称不能超过31个字符，首尾不能是' 且名称不能包含:\r\n[ ] : \\ ? * /",
-        sheetNamecannotIsEmptyError:"名称不能为空"
+        sheetNamecannotIsEmptyError:"名称不能为空!"
     },
     conditionformat: {
         conditionformat_greaterThan: '条件格式——大于',
@@ -9973,6 +9976,7 @@ export default {
         selectCellRange: '点击选择单元格范围',
         selectCellRange2: '请选择单元格范围',
         verificationCondition: '验证条件',
+        allowMultiSelect: '是否允许多选',
         dropdown: '下拉列表',
         checkbox: '复选框',
         number: '数字',

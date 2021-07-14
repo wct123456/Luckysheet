@@ -1900,10 +1900,10 @@ Luckysheet针对常用的数据操作需求，开放了主要功能的API，开�
 		+ `"flipUpDown"`: 上下翻转
 		+ `"flipLeftRight"`: 左右翻转
 		+ `"flipClockwise"`: 顺时针旋转
-		+ `"flipCounterClockwise"`: 逆时针旋转
-		+ `"Transpose"`: 转置
-		+ `"DeleteZeroByRow"`: 按行删除两端0值
-		+ `"DeleteZeroByColumn"`: 按列删除两端0值
+		+ `"flipCounterClockwise"`: 逆时针旋转api
+		+ `"transpose"`: 转置
+		+ `"deleteZeroByRow"`: 按行删除两端0值
+		+ `"deleteZeroByColumn"`: 按列删除两端0值
 		+ `"removeDuplicateByRow"`: 按行删除重复值
 		+ `"removeDuplicateByColumn"`: 按列删除重复值
 		+ `"newMatrix"`: 生产新矩阵
@@ -2062,7 +2062,20 @@ Luckysheet针对常用的数据操作需求，开放了主要功能的API，开�
 	快捷设置指定工作表config配置
 
 ------------
+### updataSheet([setting])
 
+- **参数**：
+
+    - {PlainObject} [setting]: 可选参数
+    	+ {Array} [data]: 需要更新的工作表配置，参考create这个API的option.data
+    	+ {Function} [success]: 操作结束的回调函数
+	
+- **说明**：
+
+	根据所传的工作表配置，更新相应的工作表
+
+	
+------------
 ### setSheetAdd([setting])
 
 - **参数**：
@@ -2448,6 +2461,19 @@ Luckysheet针对常用的数据操作需求，开放了主要功能的API，开�
 
 ------------
 
+### getWorkbookName([,setting])
+
+- **参数**：
+
+    - {PlainObject} [setting]: 可选参数
+    	+ {Function} [success]: 操作结束的回调函数
+
+- **说明**：
+	
+	获取工作簿名称
+
+------------
+
 ### undo([setting])
 
 - **参数**：
@@ -2483,6 +2509,56 @@ Luckysheet针对常用的数据操作需求，开放了主要功能的API，开�
 - **说明**：
 	
 	强制刷新公式。当你直接修改了多个单元格的值，且没有触发刷新，且这些单元格跟公式相关联，则可以使用这个api最后强制触发一次公式刷新。
+
+------------
+
+### pagerInit([setting])
+
+- **参数**：
+
+	- {PlainObject} [setting]: 参数配置
+		+ {Number} 		[pageIndex]:  当前的页码（必填）。
+		+ {Number} 		[pageSize]:   每页显示多少条数据（必填）。
+		+ {Number} 		[total]:  总条数（必填）。
+		+ {Boolean} 	[showTotal]:  是否显示总数，默认关闭：false。
+		+ {Boolean} 	[showSkip]:  是否显示跳页，默认关闭：false。
+		+ {Boolean} 	[showPN]:  是否显示上下翻页，默认开启：true。
+		+ {Array} 		[selectOption]:  选择分页的条数。
+		+ {String} 		[prevPage]:  上翻页文字描述，默认"上一页"。
+		+ {String} 		[nextPage]:  下翻页文字描述，默认"下一页"。
+		+ {String} 		[totalTxt]:  数据总条数文字描述，默认"总共：{total}"。
+
+
+
+- **说明**：
+	
+	初始化分页器。ps：create阶段，可以直接配置options.pager参数，渲染阶段会将options.pager作为参数来初始化分页器，可通过钩子函数onTogglePager来监听页码的切换
+
+### refreshMenuButtonFocus([data],[r],[c],[success])
+
+- **参数**：
+
+	- {Array}  [data]: 操作数据
+	- {Number} [r]: 指定的行
+	- {Number} [c]: 指定的列
+	- {Function} [success]: 操作结束的回调函数
+
+- **说明**：
+	
+	刷新指定单元格的顶部状态栏状态。
+
+------------
+
+### checkTheStatusOfTheSelectedCells(type,status)
+
+- **参数**：
+
+	- {String} type: 类型
+	- {String} status: 目标状态值
+
+- **说明**：
+	
+	检查选区内所有cell指定类型的状态是否满足条件（主要是粗体、斜体、删除线和下划线等等）。
 
 ------------
 

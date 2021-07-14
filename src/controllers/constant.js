@@ -2,6 +2,7 @@ import locale from '../locale/locale';
 import Store from '../store';
 import luckysheetConfigsetting from './luckysheetConfigsetting';
 import { getObjType } from '../utils/util';
+import { createToolbarHtml } from './toolbar';
 //dom variable
 const gridHTML = function(){ 
     const _locale = locale();
@@ -44,7 +45,7 @@ const gridHTML = function(){
                                     </div> 
                                 </div>  
                                 <div class="luckysheet-wa-calculate-help-tool">
-                                    <i class="fa fa-caret-down" aria-hidden="true" style="margin-top: 7px;"></i>
+                                    <i class="fa fa-caret-down" aria-hidden="true"></i>
                                 </div> 
                             </div> 
                             <div id="luckysheet-wa-functionbox-cancel" class="luckysheet-wa-functionbox">
@@ -209,23 +210,25 @@ const gridHTML = function(){
                                 </table> 
                             </div> 
                             <div class="luckysheet-sheet-area luckysheet-noselected-text" id="luckysheet-sheet-area">
-                                <div id="luckysheet-sheets-add" class="luckysheet-sheets-add lucky-button-custom"><i class="iconfont luckysheet-iconfont-jia1"></i></div>
-                                <div id="luckysheet-sheets-m" class="luckysheet-sheets-m lucky-button-custom"><i class="iconfont luckysheet-iconfont-caidan2"></i></div>
-                                <div class="luckysheet-sheet-container" id="luckysheet-sheet-container">
-                                    <div class="docs-sheet-fade docs-sheet-fade-left" style="display: none;">
-                                        <div class="docs-sheet-fade3"></div>
-                                        <div class="docs-sheet-fade2"></div>
-                                        <div class="docs-sheet-fade1"></div>
+                                <div id="luckysheet-sheet-content">
+                                    <div id="luckysheet-sheets-add" class="luckysheet-sheets-add lucky-button-custom"><i class="iconfont luckysheet-iconfont-jia1"></i></div>
+                                    <div id="luckysheet-sheets-m" class="luckysheet-sheets-m lucky-button-custom"><i class="iconfont luckysheet-iconfont-caidan2"></i></div>
+                                    <div class="luckysheet-sheet-container" id="luckysheet-sheet-container">
+                                        <div class="docs-sheet-fade docs-sheet-fade-left" style="display: none;">
+                                            <div class="docs-sheet-fade3"></div>
+                                            <div class="docs-sheet-fade2"></div>
+                                            <div class="docs-sheet-fade1"></div>
+                                        </div>
+                                        <div class="docs-sheet-fade docs-sheet-fade-right" style="display: none;">
+                                            <div class="docs-sheet-fade1"></div>
+                                            <div class="docs-sheet-fade2"></div>
+                                            <div class="docs-sheet-fade3"></div>
+                                        </div>
+                                        <div class="luckysheet-sheet-container-c" id="luckysheet-sheet-container-c"></div>
                                     </div>
-                                    <div class="docs-sheet-fade docs-sheet-fade-right" style="display: none;">
-                                        <div class="docs-sheet-fade1"></div>
-                                        <div class="docs-sheet-fade2"></div>
-                                        <div class="docs-sheet-fade3"></div>
-                                    </div>
-                                    <div class="luckysheet-sheet-container-c" id="luckysheet-sheet-container-c"></div>
+                                    <div id="luckysheet-sheets-leftscroll" class="luckysheet-sheets-scroll lucky-button-custom"><i class="fa fa-caret-left"></i></div>
+                                    <div id="luckysheet-sheets-rightscroll" class="luckysheet-sheets-scroll lucky-button-custom"><i class="fa fa-caret-right"></i></div>
                                 </div>
-                                <div id="luckysheet-sheets-leftscroll" class="luckysheet-sheets-scroll lucky-button-custom"><i class="fa fa-caret-left"></i></div>
-                                <div id="luckysheet-sheets-rightscroll" class="luckysheet-sheets-scroll lucky-button-custom"><i class="fa fa-caret-right"></i></div>
                             </div> 
                         </div> 
                         <div class="luckysheet-stat-area"> 
@@ -285,6 +288,14 @@ function rightclickHTML(){
     if(!config.clear && !config.matrix && !config.sort && !config.filter && !config.chart && !config.image && !config.link && !config.data && !config.cellFormat){
         dataMenuseparator = false;
     }
+
+    const customsButtons = (config.customs || [{title: 'test'}]).map((item, index) => `
+            <div data-index="${index}" class="luckysheetColsRowsHandleAdd_custom luckysheet-cols-menuitem luckysheet-mousedown-cancel">
+                <div class="luckysheet-cols-menuitem-content luckysheet-mousedown-cancel">
+                ${item.title}
+                </div>
+            </div>`
+        ).join("");
 
     const rightclickContainer =  `<div id="luckysheet-rightclick-menu" class="luckysheet-cols-menu luckysheet-rightgclick-menu luckysheet-mousedown-cancel">
                 <div id="luckysheet-copy-btn" class="luckysheet-cols-menuitem luckysheet-mousedown-cancel luckysheet-copy-btn" data-clipboard-action="copy" data-clipboard-target="#luckysheet-copy-content" style="display:${config.copy ? 'block' : 'none'};">
@@ -420,6 +431,7 @@ function rightclickHTML(){
                     <div id="luckysheetCellFormatRightClickMenu" class="luckysheet-cols-menuitem luckysheet-mousedown-cancel" style="display:${config.cellFormat ? 'block' : 'none'};">
                         <div class="luckysheet-cols-menuitem-content luckysheet-mousedown-cancel">${toolbar.cellFormat}</div>
                     </div>
+                    ${customsButtons}
                 </div>
             </div>
             <div id="luckysheetcopyfor_sub" class="luckysheet-cols-menu luckysheet-rightgclick-menu luckysheet-rightgclick-menu-sub luckysheet-mousedown-cancel">
@@ -821,765 +833,110 @@ const luckysheetchartpointconfigHTML = '<div class="luckysheet-chart-point-confi
 const luckysheetToolHTML = '<div id="luckysheet-tooltip-up" class="jfk-tooltip" role="tooltip" aria-hidden="true" style="left: 505px; top: 410px;"><div class="jfk-tooltip-contentId">组合图表</div><div class="jfk-tooltip-arrow jfk-tooltip-arrowup" style="left: 35.5px;"><div class="jfk-tooltip-arrowimplbefore"></div><div class="jfk-tooltip-arrowimplafter"></div></div></div>';
 
 // toolbar
-function menuToolBar (){
-       const toolbar = locale().toolbar;
-       const fontarray = locale().fontarray;
-       const defaultFmtArray = locale().defaultFmt;
-       
-       // <!-- undo -->
-       return `<div class="luckysheet-toolbar-left-theme">
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.undo}"
-        id="luckysheet-icon-undo" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-undo iconfont luckysheet-iconfont-qianjin"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.redo}"
-        id="luckysheet-icon-redo" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-redo iconfont luckysheet-iconfont-houtui"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.paintFormat}"
-        id="luckysheet-icon-paintformat" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img iconfont luckysheet-iconfont-geshishua"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--<div class="luckysheet-toolbar-separator luckysheet-inline-block"
-        style="user-select: none;"> </div> <div class="luckysheet-toolbar-zoom-combobox luckysheet-toolbar-combo-button luckysheet-inline-block" data-tips="缩放" id="luckysheet-icon-zoom" style="user-select: none;"> <div class="luckysheet-toolbar-combo-button-outer-box luckysheet-inline-block" style="user-select: none;"> <div class="luckysheet-toolbar-combo-button-inner-box luckysheet-inline-block" style="user-select: none;"> <div aria-posinset="4" aria-setsize="7" class="luckysheet-inline-block luckysheet-toolbar-combo-button-caption" style="user-select: none;"> <input aria-label="缩放比例" class="luckysheet-toolbar-combo-button-input luckysheet-toolbar-textinput luckysheet-mousedown-cancel" role="combobox" style="user-select: none;" tabindex="-1" type="text" value="100%"/> </div> <div class="luckysheet-toolbar-combo-button-dropdown luckysheet-inline-block " style="user-select: none;"> </div> </div> </div> </div> -->
-        <div id="toolbar-separator-paint-format" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.currencyFormat}"
-        id="luckysheet-icon-currency" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img iconfont luckysheet-iconfont-jine"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.percentageFormat}"
-        id="luckysheet-icon-percent" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img iconfont luckysheet-iconfont-baifenhao"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.numberDecrease}"
-        id="luckysheet-icon-fmt-decimal-decrease" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block toolbar-decimal-icon"
-                    style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-decimal-decrease iconfont luckysheet-iconfont-jianxiaoxiaoshuwei"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.numberIncrease}"
-        id="luckysheet-icon-fmt-decimal-increase" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block toolbar-decimal-icon"
-                    style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-decimal-increase iconfont luckysheet-iconfont-zengjiaxiaoshuwei"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.moreFormats}"
-        id="luckysheet-icon-fmt-other" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        ${defaultFmtArray[0].text}
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="toolbar-separator-more-format" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.font}" id="luckysheet-icon-font-family" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        ${fontarray[0]}
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="toolbar-separator-font-family" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-zoom-combobox luckysheet-toolbar-combo-button luckysheet-inline-block"
-        data-tips="${toolbar.fontSize}" id="luckysheet-icon-font-size" style="user-select: none;">
-            <div class="luckysheet-toolbar-combo-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-combo-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div aria-posinset="4" aria-setsize="7" class="luckysheet-inline-block luckysheet-toolbar-combo-button-caption"
-                    style="user-select: none;">
-                        <input aria-label="${toolbar.fontSize}" class="luckysheet-toolbar-combo-button-input luckysheet-toolbar-textinput"
-                        role="combobox" style="user-select: none;" tabindex="-1" type="text" value="10"
-                        />
-                    </div>
-                    <div class="luckysheet-toolbar-combo-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="toolbar-separator-font-size" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.bold}"
-        id="luckysheet-icon-bold" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-bold iconfont luckysheet-iconfont-jiacu"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.italic}"
-        id="luckysheet-icon-italic" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-italic iconfont luckysheet-iconfont-wenbenqingxie1"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.strikethrough}"
-        id="luckysheet-icon-strikethrough" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-strikethrough iconfont luckysheet-iconfont-wenbenshanchuxian"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button luckysheet-inline-block" data-tips="${toolbar.underline}"
-        id="luckysheet-icon-underline" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-underline iconfont luckysheet-iconfont-wenbenxiahuaxian"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-text-color"
-        data-tips="${toolbar.textColor}" id="luckysheet-icon-text-color" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-color-menu-button-indicator" style="border-bottom-color: rgb(0, 0, 0); user-select: none;">
-                            <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                                <div class="text-color-bar" style="background-color:${luckysheetConfigsetting.defaultTextColor}"></div>
-                                <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-text-color iconfont luckysheet-iconfont-wenbenyanse"
-                                style="user-select: none;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.chooseColor}..." id="luckysheet-icon-text-color-menu" role="button"
-        style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="toolbar-separator-text-color" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-cell-color"
-        data-tips="${toolbar.fillColor}" id="luckysheet-icon-cell-color" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-color-menu-button-indicator" style="border-bottom-color: rgb(255, 255, 255); user-select: none;">
-                            <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                                <div class="text-color-bar" style="background-color:${luckysheetConfigsetting.defaultCellColor}"></div>
-                                <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-cell-color iconfont luckysheet-iconfont-tianchong"
-                                style="user-select: none;">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.chooseColor}..." id="luckysheet-icon-cell-color-menu" role="button"
-        style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-border-all"
-        data-tips="${toolbar.border}" id="luckysheet-icon-border-all" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-border-all iconfont luckysheet-iconfont-quanjiabiankuang"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.borderStyle}..." id="luckysheet-icon-border-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-merge-button"
-        data-tips="${toolbar.mergeCell}" id="luckysheet-icon-merge-button" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-merge iconfont luckysheet-iconfont-hebing"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.chooseMergeType}..." id="luckysheet-icon-merge-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="toolbar-separator-merge-cell" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-align"
-        data-tips="${toolbar.horizontalAlign}" id="luckysheet-icon-align" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-align-left iconfont luckysheet-iconfont-wenbenzuoduiqi"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.alignment}..." id="luckysheet-icon-align-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-valign"
-        data-tips="${toolbar.verticalAlign}" id="luckysheet-icon-valign" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-valign-bottom iconfont luckysheet-iconfont-dibuduiqi"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.alignment}..." id="luckysheet-icon-valign-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-textwrap"
-        data-tips="${toolbar.textWrap}" id="luckysheet-icon-textwrap" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-textwrap-clip iconfont luckysheet-iconfont-jieduan"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.textWrapMode}..." id="luckysheet-icon-textwrap-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-rotation"
-        data-tips="${toolbar.textRotate}" id="luckysheet-icon-rotation" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-wuxuanzhuang"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.textRotateMode}..." id="luckysheet-icon-rotation-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div id="toolbar-separator-text-rotate" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.insertImage}" id="luckysheet-insertImg-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-tupian"
-                            style="user-select: none;">
-                                <input id="luckysheet-imgUpload" type="file" accept="image/*" style="display:none;"></input>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.insertLink}" id="luckysheet-insertLink-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-lianjie"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.chart}" id="luckysheet-chart-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-tubiao"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>        
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.postil}"
-        id="luckysheet-icon-postil" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon-img-container luckysheet-toolbar-menu-button-caption luckysheet-inline-block iconfont luckysheet-iconfont-zhushi"
-                    style="user-select: none;">
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.pivotTable}" id="luckysheet-pivot-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-shujutoushi"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>       
-        <div id="toolbar-separator-pivot-table" class="luckysheet-toolbar-separator luckysheet-inline-block" style="user-select: none;">
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-icon-function"
-        data-tips="${toolbar.autoSum}" id="luckysheet-icon-function" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-function iconfont luckysheet-iconfont-jisuan"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        ${toolbar.sum}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.moreFunction}..." id="luckysheet-icon-function-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block luckysheet-freezen-btn-horizontal"
-        data-tips="${toolbar.freezeTopRow}" id="luckysheet-freezen-btn-horizontal" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-dongjie1"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-right luckysheet-toolbar-menu-button luckysheet-inline-block"
-        data-tips="${toolbar.moreOptions}..." id="luckysheet-icon-freezen-menu" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.sortAndFilter}"
-        id="luckysheet-icon-autofilter" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-autofilter iconfont luckysheet-iconfont-shaixuan"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;margin-left: 0px;margin-right: 4px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.conditionalFormat}"
-        id="luckysheet-icon-conditionformat" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-autofilter iconfont luckysheet-iconfont-geshitiaojian"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.dataVerification}" id="luckysheet-dataVerification-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-shujuyanzheng"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.splitColumn}" id="luckysheet-splitColumn-btn-title" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-wenbenfenge"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.screenshot}" id="luckysheet-chart-btn-screenshot" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-jieping"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.findAndReplace}"
-        id="luckysheet-icon-seachmore" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-autofilter iconfont luckysheet-iconfont-sousuo"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;margin-left: 0px;margin-right: 4px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-button-split-left luckysheet-toolbar-button luckysheet-inline-block"
-        data-tips="${toolbar.protection}" id="luckysheet-icon-protection" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-menu-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-                    <div class="luckysheet-toolbar-menu-button-caption luckysheet-inline-block"
-                    style="user-select: none;">
-                        <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                            <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-rotation-none iconfont luckysheet-iconfont-biaogesuoding"
-                            style="user-select: none;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="luckysheet-toolbar-select luckysheet-toolbar-menu-button luckysheet-inline-block" data-tips="${toolbar.print}"
-        id="luckysheet-icon-print" role="button" style="user-select: none;">
-            <div class="luckysheet-toolbar-menu-button-outer-box luckysheet-inline-block"
-            style="user-select: none;">
-                <div class="luckysheet-toolbar-button-inner-box luckysheet-inline-block"
-                style="user-select: none;">
-
-                    <div class="luckysheet-icon luckysheet-inline-block " style="user-select: none;">
-                        <div aria-hidden="true" class="luckysheet-icon-img-container luckysheet-icon-img luckysheet-icon-autofilter iconfont luckysheet-iconfont-dayin"
-                        style="user-select: none;">
-                        </div>
-                    </div>
-                    <div class="luckysheet-toolbar-menu-button-dropdown luckysheet-inline-block iconfont luckysheet-iconfont-xiayige"
-                    style="user-select: none;margin-left: 0px;margin-right: 4px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-        `;
-} 
-
-const luckysheetlodingHTML = function(){ 
-    const _locale = locale()
-    const info =_locale.info;
-    return'<div id="luckysheetloadingdata" style="width:100%;text-align:center;position:absolute;top:0px;height:100%;font-size: 16px;z-index:1000000000;background:#fff;"><div style="position:relative;top:45%;width:100%;"> <div class="luckysheetLoaderGif"></div>  <span>'+info.loading+'...</span></div></div>';
+function menuToolBar() {
+    return createToolbarHtml();
 }
+
+function customLoadingConfig() {
+    const _locale = locale();
+    const info = _locale.info;
+    const config = {
+        enable: true,
+        image: 'image://css/loading.gif',
+        text: info.loading,
+        viewBox: "32 32 64 64", // 只有为path时，才会使用
+        imageClass: '',
+        textClass: '',
+        customClass: ''
+    }
+    if (JSON.stringify(luckysheetConfigsetting.loading) !== '{}') {
+        Object.assign(config, luckysheetConfigsetting.loading);
+    }
+    return config;
+}
+
+const luckysheetloadingImage = function (config) {
+    if(typeof config.image==="function"){
+        return config.image()
+    }
+    const regE = new RegExp("^(image|path)://");
+    const regResult = regE.exec(config.image);
+    let imageHtml = '';
+    if (regResult !== null) {
+        const prefix = regResult[0];
+        const type = regResult[1];
+        const imageStr = regResult.input.substring(prefix.length);
+        switch (type) {
+            case "image":
+                imageHtml = `<div class="image-type" style="background-image: url(${imageStr});"></div>`;
+                break;
+            case "path":
+                const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                svg.setAttribute("class", "path-type");
+                svg.setAttribute("viewBox", config.viewBox);
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", imageStr);
+                path.setAttribute("fill", "currentColor");
+                svg.appendChild(path);
+                imageHtml = svg.outerHTML;
+                break;
+            default:
+                break;
+        }
+    }
+    return imageHtml;
+}
+
+const luckysheetlodingHTML = function (target, coverConfig) {
+    if (!target) {
+        return;
+    }
+    const config = customLoadingConfig();
+    if (coverConfig && JSON.stringify(coverConfig) !== "{}") {
+        Object.assign(config, coverConfig);
+    }
+    if (typeof config.enable === "boolean" && config.enable === false) {
+        return {
+            el: '',
+            show: show,
+            close: close
+        }
+    }
+    const imageHtml = luckysheetloadingImage(config);
+    const id = "luckysheet-loading-" + uuid.v4();
+    const loadingHtml = `
+        <div class="luckysheet-loading-content"> 
+            <div class="${config.imageClass} luckysheet-loading-image">
+                ${imageHtml}
+            </div>
+            <div class="${config.textClass} luckysheet-loading-text">
+            <span>${config.text}</span>
+            </div>    
+        </div>`;
+    const loading = document.createElement("div");
+    loading.id = id;
+    loading.className = "luckysheet-loading-mask " + config.customClass;
+    $(loading).html(loadingHtml);
+    $(target).append(loading);
+
+    function show() {
+        if(id){
+            $("#" + id).show();
+        }     
+    }
+
+    function close() {
+        if(id){
+            $("#" + id).hide();
+        }  
+    }
+    return {
+        el: loading,
+        show: show,
+        close: close
+    };
+}
+
 // var menusetting = {
 //     menu_selectall: '<div id="luckysheet-selectall-btn-title"><i class="fa fa-i-cursor"></i> 全选</div>',
 //     menu_copy: '<div id="luckysheet-copy-btn-title"><i class="fa fa-copy"></i> 复制</div>',

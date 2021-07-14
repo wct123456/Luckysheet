@@ -8,6 +8,7 @@ import { getSheetIndex, getRangetxt } from '../methods/get';
 import Store from '../store';
 import method from '../global/method';
 import locale from '../locale/locale';
+import { refreshMenuButtonFocus } from "../global/api";
 
 //公式函数 选区实体框
 function seletedHighlistByindex(id, r1, r2, c1, c2) {
@@ -180,6 +181,9 @@ function selectHightlightShow(isRestore = false) {
         if (Store.luckysheet_select_save.length == 1 && Store.luckysheet_select_save[0].row[0] == Store.luckysheet_select_save[0].row[1] && Store.luckysheet_select_save[0].column[0] == Store.luckysheet_select_save[0].column[1]) {
             dynamicArrayHightShow(Store.luckysheet_select_save[0].row[0], Store.luckysheet_select_save[0].column[0]);
         }
+    
+        /* 刷新当前状态栏 */
+        refreshMenuButtonFocus();
     }
 
     Store.luckysheetfile[getSheetIndex(Store.currentSheetIndex)].luckysheet_select_save = Store.luckysheet_select_save;
@@ -311,6 +315,7 @@ function selectIsOverlap(range) {
     if (range == null) {
         range = Store.luckysheet_select_save;
     }
+    range = JSON.parse(JSON.stringify(range));
 
     let overlap = false;
     let map = {};
@@ -398,10 +403,10 @@ function collaborativeEditBox() {
             if (Object.keys(range).length > 0 ) {
                 let flag_sure_merge = false
                 if(range.v.length > 1) {
-                    flag_sure_merge = Object.keys(range.v[1][0]).length > 0
+                    flag_sure_merge = range.v[1][0] == null || Object.keys(range.v[1][0]).length > 0
                 }
                 if(range.v[0].length > 1) {
-                    flag_sure_merge = Object.keys(range.v[0][1]).length > 0
+                    flag_sure_merge = range.v[0][1] == null || Object.keys(range.v[0][1]).length > 0
                 }
                 if(flag_sure_merge) {
                     // 合并成一个时执行
@@ -454,6 +459,7 @@ function selectionCopyShow(range) {
     if (range == null) {
         range = Store.luckysheet_selection_range;
     }
+    range = JSON.parse(JSON.stringify(range));
 
     if (range.length > 0) {
         for (let s = 0; s < range.length; s++) {

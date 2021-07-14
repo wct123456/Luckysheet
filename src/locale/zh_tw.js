@@ -9140,6 +9140,9 @@ export default {
         update : "Update",
         delete : "Delete",
         insert : "新建",
+        prevPage: "上一頁",
+        nextPage: "下一頁",
+        total: "總共："
     },
     paint: {
         start         : '格式刷開啟',
@@ -9161,7 +9164,7 @@ export default {
         detailSave  : '已恢復本地緩存',
         row         : '行',
         column      : '列',
-        loading     : '渲染中',
+        loading     : '渲染中···',
 
         copy  : '副本',
         return: '返回',
@@ -9966,6 +9969,7 @@ export default {
         selectCellRange      : '點擊選擇儲存格範圍',
         selectCellRange2     : '請選擇儲存格範圍',
         verificationCondition: '驗證條件',
+        allowMultiSelect     : "是否允許多選",
         dropdown             : '下拉清單',
         checkbox             : '核取方塊',
         number               : '數位',

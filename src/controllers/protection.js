@@ -723,7 +723,7 @@ export function closeProtectionModal(){
 
 
 
-function checkProtectionLockedSqref(r, c, aut, local_protection, isOpenAlert=true){
+function checkProtectionLockedSqref(r, c, aut, local_protection, isOpenAlert=true, isLock=true){
     let isPass = false;
     let rangeAut = aut.allowRangeList;
     if(rangeAut!=null && rangeAut.length>0){
@@ -763,7 +763,7 @@ function checkProtectionLockedSqref(r, c, aut, local_protection, isOpenAlert=tru
             }
         }
     }
-
+    if (!isPass && !isLock) isPass = true
     if(!isPass && isOpenAlert){
         let ht;
         if(aut.hintText != null && aut.hintText.length>0){
@@ -892,7 +892,7 @@ export function checkProtectionNotEnable(sheetIndex){
 }
 
 //cell locked state
-export function checkProtectionLocked(r, c, sheetIndex){
+export function checkProtectionLocked(r, c, sheetIndex, isOpenAlert=true, isLock=true){
 
     let sheetFile = sheetmanage.getSheetByIndex(sheetIndex);
     if(sheetFile==null){
@@ -909,20 +909,20 @@ export function checkProtectionLocked(r, c, sheetIndex){
         return true;
     }
 
-    if(cell && !cell.lo){
+    if(cell && cell.lo === 0){ // lo为0的时候才是可编辑
         return true;
     }
 
     const _locale = locale();
     const local_protection = _locale.protection;
 
-    return checkProtectionLockedSqref(r, c , aut, local_protection);
+    return checkProtectionLockedSqref(r, c , aut, local_protection, isOpenAlert, isLock);
 }
 
 //cell hidden state
 export function checkProtectionCellHidden(r, c, sheetIndex){
     let sheetFile = sheetmanage.getSheetByIndex(sheetIndex);
-    if(!sheetFile || !sheetFile.data[r] || !sheetFile.data[r][c]){
+    if(!sheetFile || (sheetFile.data && !sheetFile.data[r]) || (sheetFile.data && !sheetFile.data[r][c])){
         return true;
     }
 
@@ -945,11 +945,8 @@ export function checkProtectionCellHidden(r, c, sheetIndex){
 
 //cell range locked state
 export function checkProtectionLockedRangeList(rangeList, sheetIndex){
-    //EPM-BUDGET-START
-    if (rangeList[0].column[0] !== rangeList[0].column[1]) return true
-    //EPM-BUDGET-END
-
     let sheetFile = sheetmanage.getSheetByIndex(sheetIndex);
+
     if(sheetFile==null){
         return true;
     }
@@ -968,13 +965,6 @@ export function checkProtectionLockedRangeList(rangeList, sheetIndex){
         return true;
     }
 
-    //EPM-BUDGET-START
-    let cell = sheetFile.data[rangeList[0].row[0]][rangeList[0].column[0]]
-    if(cell&& !cell.lo){
-        return true;
-    }
-    //EPM-BUDGET-END
-
     const _locale = locale();
     const local_protection = _locale.protection;
 
@@ -984,8 +974,10 @@ export function checkProtectionLockedRangeList(rangeList, sheetIndex){
 
         for(let r=r1;r<=r2;r++){
             for(let c=c1;c<=c2;c++){
-                let isPass = checkProtectionLockedSqref(r, c , aut, local_protection);
-                if(isPass==false){
+                const cell = sheetFile.data[r][c] || {}
+                let isLock = cell.lo === undefined || cell.lo === 1, // 单元格是否锁定
+                    isPass = checkProtectionLockedSqref(r, c , aut, local_protection, true, isLock);
+                if(!isPass){
                     return false;
                 }
             }
@@ -1014,7 +1006,7 @@ export function checkProtectionSelectLockedOrUnLockedCells(r, c, sheetIndex){
         return true;
     }
 
-    if(cell && !cell.lo){//unlocked
+    if(cell && cell.lo === 0){ // lo为0的时候才是可编辑
         if(aut.selectunLockedCells==1 || aut.selectunLockedCells==null){
             return true;
         }

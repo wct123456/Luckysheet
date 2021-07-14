@@ -275,7 +275,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 类型：Object
 - 默认值：{}
 - 作用：自定义配置工具栏，可以与showtoolbar配合使用，`showtoolbarConfig`拥有更高的优先级。
-- 格式：
+- 格式1：
     ```json
     {
         undoRedo: false, //撤销重做，注意撤消重做是两个按钮，由这一个配置决定显示还是隐藏
@@ -316,7 +316,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 		print:false, // '打印'
     }
     ```
-- 示例：
+- 示例1：
 	- 仅显示撤消重做和字体按钮：
 		
 		```js
@@ -341,7 +341,33 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 				}
 			}
 		```
-
+- 格式2：
+    对象格式可以很方便控制显示隐藏，使用数组形式可轻松控制按钮顺序和位置， 以下为工具栏按钮和分隔符的默认配置。
+    ```json
+	[   
+		"undo", "redo", "paintFormat", "|", 
+		"currencyFormat", "percentageFormat", "numberDecrease", "numberIncrease", "moreFormats", "|", 
+		"font", "|", 
+		"fontSize", "|", 
+		"bold", "italic", "strikethrough", "underline", "textColor", "|", 
+		"fillColor", "border", "mergeCell", "|", 
+		"horizontalAlignMode", "verticalAlignMode", "textWrapMode", "textRotateMode", "|", 
+		"image", "link", "chart", "postil", "pivotTable", "|", 
+		"function", "frozenMode", "sortAndFilter", "conditionalFormat", "dataVerification", "splitColumn", "screenshot", "findAndReplace", "protection", "print"
+	]
+	```
+- 示例2： 
+	- 自定义按钮和位置， 保护放到最前面， 只要字体样式相关按钮。
+	    ```json
+		{
+			"showtoolbarConfig": [
+				"protection", "|", 
+				"font", "|", 
+				"fontSize", "|", 
+				"bold", "italic", "strikethrough", "underline", "textColor"
+			]
+		}
+		```
 ------------
 ### showinfobar
 - 类型：Boolean
@@ -669,10 +695,16 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 	点击分页按钮会触发钩子函数 `onTogglePager`，返回当前页码，同`sPage`的`backFun`方法，此分页器设置只负责UI部分，具体切换分页后的数据请求和数据渲染，请在`onTogglePager`钩子行数里自定义处理。
 	```js
 	pager: {
-		pageIndex: 1, //当前的页码
-		pageSize: 10, //每页显示多少行数据
-		total: 50, //数据总行数
-		selectOption: [10, 20] //允许设置每页行数的选项
+		pageIndex: 1, //当前页码，必填
+		total: 100, //数据总条数，必填
+		selectOption: [10, 20, 30], // 选择每页的行数，
+		pageSize: 10, //每页显示多少条数据，默认10条
+		showTotal: false, // 是否显示总数，默认关闭：false
+		showSkip: false, //是否显示跳页，默认关闭：false
+		showPN: false, //是否显示上下翻页，默认开启：true
+		prevPage: '', //上翻页文字描述，默认"上一页"
+		nextPage: '', //下翻页文字描述，默认"下一页"
+		totalTxt: '', // 数据总条数文字描述，默认"总共：{total}"
 	}
 	```
 
@@ -734,13 +766,13 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：单元格渲染前触发，`return false` 则不渲染该单元格
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [ctx]: 当前画布的context
 
@@ -752,15 +784,83 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：单元格渲染结束后触发，`return false` 则不渲染该单元格
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [ctx]: 当前画布的context
+
+- 示例：
+
+	一个在D1单元格的左上角和右下角分别绘制两张图的案例
+	:::::: details
+	```js
+	luckysheet.create({
+            hook: {
+                cellRenderAfter: function (cell, position, sheetFile, ctx) {
+                    var r = position.r;
+                    var c = position.c;
+                    if (r === 0 && c === 3) { // 指定处理D1单元格
+                        if (!window.storeUserImage) {
+                            window.storeUserImage = {}
+                        }
+						
+                        if (!window.storeUserImage[r + '_' + c]) {
+                            window.storeUserImage[r + '_' + c] = {}
+                        }
+
+                        var img = null;
+                        var imgRight = null;
+
+                        if (window.storeUserImage[r + '_' + c].image && window.storeUserImage[r + '_' + c].imgRight) {
+							
+							// 加载过直接取
+                            img = window.storeUserImage[r + '_' + c].image;
+                            imgRight = window.storeUserImage[r + '_' + c].imgRight;
+
+                        } else {
+
+                            img = new Image();
+                            imgRight = new Image();
+
+                            img.src = 'https://www.dogedoge.com/favicon/developer.mozilla.org.ico';
+                            imgRight.src = 'https://www.dogedoge.com/static/icons/twemoji/svg/1f637.svg';
+
+							// 图片缓存到内存，下次直接取，不用再重新加载
+                            window.storeUserImage[r + '_' + c].image = img;
+                            window.storeUserImage[r + '_' + c].imgRight = imgRight;
+
+                        }
+
+						
+                        if (img.complete) { // 已经加载完成的直接渲染
+                            ctx.drawImage(img, position.start_c, position.start_r, 10, 10);
+                        } else {
+                            img.onload = function () {
+                                ctx.drawImage(img, position.start_c, position.start_r, 10, 10);
+                            }
+
+                        }
+
+                        if (imgRight.complete) {
+                            ctx.drawImage(imgRight, position.end_c - 10, position.end_r - 10, 10, 10);
+                        } else {
+
+                            imgRight.onload = function () {
+                                ctx.drawImage(imgRight, position.end_c - 10, position.end_r - 10, 10, 10);
+                            }
+                        }
+
+                    }
+                }
+            }
+        })
+	```
+	:::
 
 ------------
 ### cellAllRenderBefore
@@ -781,7 +881,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：行标题单元格渲染前触发，`return false` 则不渲染行标题
 - 参数：
 	- {String} [rowNum]:行号
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [top]:单元格左上角的垂直坐标
 		+ {Number} [width]:单元格宽度
@@ -796,7 +896,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：行标题单元格渲染后触发，`return false` 则不渲染行标题
 - 参数：
 	- {String} [rowNum]:行号
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [top]:单元格左上角的垂直坐标
 		+ {Number} [width]:单元格宽度
@@ -811,7 +911,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：列标题单元格渲染前触发，`return false` 则不渲染列标题
 - 参数：
 	- {Object} [columnAbc]:列标题字符
-	- {Object} [postion]:
+	- {Object} [position]:
 		- {Number} [c]:单元格所在列号
 		- {Number} [left]:单元格左上角的水平坐标
 		- {Number} [width]:单元格宽度
@@ -826,7 +926,7 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：列标题单元格渲染后触发，`return false` 则不渲染列标题
 - 参数：
 	- {Object} [columnAbc]:列标题字符
-	- {Object} [postion]:
+	- {Object} [position]:
 		- {Number} [c]:单元格所在列号
 		- {Number} [left]:单元格左上角的水平坐标
 		- {Number} [width]:单元格宽度
@@ -844,13 +944,13 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：单元格点击前的事件，`return false`则终止之后的点击操作
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [ctx]: 当前画布的context
 
@@ -862,13 +962,13 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：单元格点击后的事件，`return false`则终止之后的点击操作
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [ctx]: 当前画布的context
 
@@ -880,13 +980,13 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：鼠标移动事件，可通过cell判断鼠标停留在哪个单元格
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [moveState]:鼠标移动状态，可判断现在鼠标操作的对象，false和true
 		+ {Boolean} [functionResizeStatus]:工具栏拖动
@@ -916,13 +1016,13 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 作用：鼠标按钮释放事件，可通过cell判断鼠标停留在哪个单元格
 - 参数：
 	- {Object} [cell]:单元格对象
-	- {Object} [postion]:
+	- {Object} [position]:
 		+ {Number} [r]:单元格所在行号
 		+ {Number} [c]:单元格所在列号
-		+ {Number} [start_r]:单元格左上角的水平坐标
-		+ {Number} [start_c]:单元格左上角的垂直坐标
-		+ {Number} [end_r]:单元格右下角的水平坐标
-		+ {Number} [end_c]:单元格右下角的垂直坐标
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
 	- {Object} [sheet]:当前sheet对象
 	- {Object} [moveState]:鼠标移动状态，可判断现在鼠标操作的对象，false和true
 		+ {Boolean} [functionResizeStatus]:工具栏拖动
@@ -955,11 +1055,30 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 - 类型：Function
 - 默认值：null
 - 作用：鼠标滚动事件
-- 参数：{, , }
+- 参数：
 	- {Object} [position]:
 		+ {Number} [scrollLeft]:横向滚动条的位置
 		+ {Number} [scrollTop]:垂直滚动条的位置
 		+ {Number} [canvasHeight]:canvas高度
+		
+------------
+### cellDragStop
+
+- 类型：Function
+- 默认值：null
+- 作用：鼠标拖拽文件到Luckysheet内部的结束事件
+- 参数：
+	- {Object} [cell]:单元格对象
+	- {Object} [position]:
+		+ {Number} [r]:单元格所在行号
+		+ {Number} [c]:单元格所在列号
+		+ {Number} [start_r]:单元格左上角的垂直坐标
+		+ {Number} [start_c]:单元格左上角的水平坐标
+		+ {Number} [end_r]:单元格右下角的垂直坐标
+		+ {Number} [end_c]:单元格右下角的水平坐标
+	- {Object} [sheet]:当前sheet对象
+	- {Object} [ctx]: 当前画布的context
+	- {Object} [event]: 当前事件对象
 		
 ------------
 
@@ -1341,7 +1460,28 @@ Luckysheet开放了更细致的自定义配置选项，分别有
 	- {Object} [size]: 整个工作簿区域的宽高
     
 ------------
+### scroll
+- 类型：Function
+- 默认值：null
+- 作用：监听表格滚动值
+- 参数：
+	- {Number} [scrollLeft]: 水平方向滚动值
+	- {Number} [scrollTop]: 垂直方向滚动值
+	- {Number} [canvasHeight]: 滚动容器的高度
+    
+------------
 
+
+## 协作消息
+
+### cooperativeMessage
+
+- 类型：Function
+- 默认值：null
+- 作用：接受协作消息，二次开发。拓展协作消息指令集
+- 参数：
+	- {Object} : 收到服务器发送的整个协作消息体对象
+  
 ## 图片
 
 ### imageInsertBefore

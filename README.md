@@ -57,8 +57,8 @@ English| [简体中文](./README-zh.md)
 For a more detailed feature list, please refer to: [Features](https://mengshukeji.github.io/LuckysheetDocs/guide/#features)
 
 ## 📖 Resources
-
-For the tutorials, learning materials and supporting solutions provided by the community, please refer to [Tutorials and Resources](https://mengshukeji.github.io/LuckysheetDocs/guide/resource.html)
+- Priority reading for new users: [User Guide](https://github.com/mengshukeji/Luckysheet/wiki/User-Guide)
+- For the tutorials, learning materials and supporting solutions provided by the community, please refer to: [Tutorials and Resources](https://mengshukeji.github.io/LuckysheetDocs/guide/resource.html)
 
 ## 📜 Changelog
 
@@ -81,12 +81,12 @@ Please make sure to read the[ Contributing Guide](https://mengshukeji.github.io/
 ### First step
 Introduce dependencies through CDN
 ```
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css' />
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css' />
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css' />
-<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet/dist/assets/iconfont/iconfont.css' />
-<script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"></script>
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/css/pluginsCss.css' />
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/plugins.css' />
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/css/luckysheet.css' />
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/assets/iconfont/iconfont.css' />
+<script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/plugins/js/plugin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luckysheet@latest/dist/luckysheet.umd.js"></script>
 ```
 ### Second step
 Specify a table container
@@ -129,8 +129,8 @@ npm run build
 ## Partner project
 
 - [luban-h5](https://github.com/ly525/luban-h5)
-- [excelize](https://github.com/360EntSecGroup-Skylar/excelize)
 - [h5-Dooring](https://github.com/MrXujiang/h5-Dooring)
+- [Furion](https://gitee.com/monksoul/Furion)
 
 ## Communication
 - [Github Discussions](https://github.com/mengshukeji/Luckysheet/discussions)
@@ -172,6 +172,15 @@ Funds donated via Patreon go directly to support mengshukeji's work on Luckyshee
 - 张铭 ¥ 200
 - 曹治军 ¥ 1
 - *特 ¥ 10
+- **权 ¥ 9.9
+- **sdmq ¥ 20
+- *旭 ¥ 10
+- Quentin ¥ 20
+- 周宇凡 ¥ 100
+- *超 ¥ 10
+- 维宁 ¥ 100
+- hyy ¥ 20
+- 雨亭寒江月 ¥ 50
 
 ## Authors and acknowledgment
 
@@ -195,6 +204,7 @@ Funds donated via Patreon go directly to support mengshukeji's work on Luckyshee
 - [@swen-xiong](https://github.com/swen-xiong)
 - [@lzmch](https://github.com/lzmch)
 - [@kdevilpf](https://github.com/kdevilpf)
+- [@WJWM0316](https://github.com/WJWM0316)
 
 ## License
 [MIT](http://opensource.org/licenses/MIT)
